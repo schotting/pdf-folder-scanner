@@ -1,0 +1,66 @@
+name: Build desktop app
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+    paths:
+      - "folder-scan/**"
+      - "requirements.txt"
+      - ".github/workflows/build-desktop-app.yml"
+  workflow_dispatch: {}
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        include:
+          - os: windows-latest
+            artifact-name: PDF-Folder-Scanner-Windows
+            dist-path: 'folder-scan/dist/PDF Folder Scanner.exe'
+            zip-name: PDF-Folder-Scanner-Windows.zip
+          - os: macos-latest
+            artifact-name: PDF-Folder-Scanner-macOS
+            dist-path: 'folder-scan/dist/PDF Folder Scanner.app'
+            zip-name: PDF-Folder-Scanner-macOS.zip
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt -r folder-scan/requirements-desktop.txt
+
+      - name: Build with PyInstaller
+        working-directory: folder-scan
+        run: pyinstaller desktop.spec --noconfirm
+
+      # Always published as a CI artifact (needs GitHub login, expires after 90 days) —
+      # useful for testing a build from a branch/PR before it's tagged for release.
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact-name }}
+          path: ${{ matrix.dist-path }}
+
+      - name: Zip Windows build
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
+        run: Compress-Archive -Path "${{ matrix.dist-path }}" -DestinationPath "${{ matrix.zip-name }}"
+
+      - name: Zip macOS build
+        if: matrix.os == 'macos-latest'
+        shell: bash
+        run: ditto -c -k --sequesterRsrc --keepParent "${{ matrix.dist-path }}" "${{ matrix.zip-name }}"
+
+      # On a version tag (e.g. `v1.0.0`), publish both builds as public, no-login
+      # download links on a GitHub Release — this is what actually "hosts" the app.
+      - name: Publish to GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ matrix.zip-name }}

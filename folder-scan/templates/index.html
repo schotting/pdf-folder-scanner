@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PDF Folder Scanner</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <main class="wrap">
+    <h1>PDF Folder Scanner</h1>
+    <p class="sub">Point at a folder on your PC and pull the text out of every PDF inside it — including subfolders.</p>
+
+    <div class="path-row">
+      <input type="text" id="pathInput" placeholder="e.g. C:\Users\you\Documents\Reports" autocomplete="off">
+      <button id="browseBtn" type="button">Browse…</button>
+      <button id="scanBtn" type="button" class="primary">Scan</button>
+    </div>
+
+    <div id="status" class="status" hidden></div>
+
+    <section id="results" class="results" hidden>
+      <div class="summary-row">
+        <div id="summary" class="summary"></div>
+        <button id="downloadBtn" type="button">Download .txt</button>
+      </div>
+
+      <div class="search-row">
+        <input type="text" id="searchInput" placeholder="Search extracted text…" autocomplete="off">
+        <button id="prevBtn" type="button" title="Previous match">&#8593;</button>
+        <button id="nextBtn" type="button" title="Next match">&#8595;</button>
+        <span id="matchCount" class="match-count"></span>
+      </div>
+      <div id="matchSource" class="match-source" hidden>
+        Match found in: <span id="matchSourceName"></span>
+      </div>
+
+      <pre id="output" class="output"></pre>
+    </section>
+  </main>
+
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

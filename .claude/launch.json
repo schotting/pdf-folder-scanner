@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "pdf-text-extractor",
+      "runtimeExecutable": ".venv/Scripts/python.exe",
+      "runtimeArgs": ["app.py"],
+      "port": 5000
+    },
+    {
+      "name": "pdf-folder-scanner",
+      "runtimeExecutable": ".venv/Scripts/python.exe",
+      "runtimeArgs": ["folder-scan/app.py"],
+      "port": 5001
+    }
+  ]
+}
